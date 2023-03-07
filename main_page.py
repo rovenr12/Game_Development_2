@@ -5,6 +5,7 @@ from dash import Dash, html, dcc, Input, Output, State
 import dash_daq as daq
 import image_generation
 import nlp
+from questions import question_dictionary
 
 
 app = Dash(external_stylesheets=[dbc.themes.FLATLY], title='Senti-tamagotchi')
@@ -107,9 +108,24 @@ app.layout = dbc.Container([
     Input("character_name", "value")
 )
 def get_new_question(attributes, character_name):
-    return f"{character_name}: ", f"new_question {random.random()}", {"angry_pleased": 0.5, 'board_excited': 0.1,
-                                                                      'sick_healthy': -0.4,
-                                                                      'scary_relaxed': 0.2}
+  current_mood = ""
+  current_mood += "1" if (attributes["board_excited"] < 5) else "0"
+  current_mood += "1" if (attributes["angry_pleased"] < 5) else "0"
+  current_mood += "1" if (attributes["sick_healthy"] < 5) else "0"
+  current_mood += "1" if (attributes["scary_relaxed"] < 5) else "0"
+
+  board_excited_par = 0.5 * int(current_mood[0]) + random.uniform(-0.2, 0.2)
+  angry_pleased_par = 0.5 * int(current_mood[1]) + random.uniform(-0.2, 0.2)
+  sick_healthy_par = 0.5 * int(current_mood[2]) + random.uniform(-0.2, 0.2)
+  scary_relaxed_par = 0.5 * int(current_mood[3]) + random.uniform(-0.2, 0.2)
+
+  question = question_dictionary[current_mood][random.randint(0, 10)]
+
+    return f"{character_name}: ", f"{question}", {"angry_pleased": board_excited_par, 'board_excited': angry_pleased_par,
+                                                                      'sick_healthy': sick_healthy_par,
+                                                                      'scary_relaxed': scary_relaxed_par}
+
+
 
 
 @app.callback(
