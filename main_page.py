@@ -6,7 +6,7 @@ import dash_daq as daq
 import image_generation
 import nlp
 from questions import question_dictionary
-
+import game_logic
 
 app = Dash(external_stylesheets=[dbc.themes.FLATLY], title='Senti-tamagotchi')
 
@@ -75,7 +75,8 @@ collections_card = html.Div(dbc.Card([
                             dbc.Tab(label='Accessory', tab_id='accessory')], id='collection_tabs', active_tab='all'),
                   html.Div(id='collection_div')],
                  style={'height': '800px', 'overflow-y': 'auto'}),
-    dcc.Store(data={"body": ["5_5_5_5"], "eye": ["5_5_5_5"], "mouth": ["5_5_5_5"], "accessory": ["5_5_5_5"]}, id='collections')
+    dcc.Store(data={"body": ["5_5_5_5"], "eye": ["5_5_5_5"], "mouth": ["5_5_5_5"], "accessory": ["5_5_5_5"]},
+              id='collections')
 ]), className='my-2 shadow')
 
 ####################################
@@ -108,24 +109,36 @@ app.layout = dbc.Container([
     Input("character_name", "value")
 )
 def get_new_question(attributes, character_name):
-  current_mood = ""
-  current_mood += "1" if (attributes["board_excited"] < 5) else "0"
-  current_mood += "1" if (attributes["angry_pleased"] < 5) else "0"
-  current_mood += "1" if (attributes["sick_healthy"] < 5) else "0"
-  current_mood += "1" if (attributes["scary_relaxed"] < 5) else "0"
+    current_mood = ""
+    current_mood += "1" if (attributes["board_excited"] < 5) else "0"
+    current_mood += "1" if (attributes["angry_pleased"] < 5) else "0"
+    current_mood += "1" if (attributes["sick_healthy"] < 5) else "0"
+    current_mood += "1" if (attributes["scary_relaxed"] < 5) else "0"
 
-  board_excited_par = 0.5 * int(current_mood[0]) + random.uniform(-0.2, 0.2)
-  angry_pleased_par = 0.5 * int(current_mood[1]) + random.uniform(-0.2, 0.2)
-  sick_healthy_par = 0.5 * int(current_mood[2]) + random.uniform(-0.2, 0.2)
-  scary_relaxed_par = 0.5 * int(current_mood[3]) + random.uniform(-0.2, 0.2)
+    board_excited_par = game_logic.norm_pdf(attributes["board_excited"]) + random.uniform(-0.2, 0.2)
+    angry_pleased_par = game_logic.norm_pdf(attributes["angry_pleased"]) + random.uniform(-0.2, 0.2)
+    sick_healthy_par = game_logic.norm_pdf(attributes["sick_healthy"]) + random.uniform(-0.2, 0.2)
+    scary_relaxed_par = game_logic.norm_pdf(attributes["scary_relaxed"]) + random.uniform(-0.2, 0.2)
 
-  question = question_dictionary[current_mood][random.randint(0, 10)]
+    if attributes["board_excited"] >= 5 and random.random() < 0.3:
+        board_excited_par *= -1
 
-    return f"{character_name}: ", f"{question}", {"angry_pleased": board_excited_par, 'board_excited': angry_pleased_par,
-                                                                      'sick_healthy': sick_healthy_par,
-                                                                      'scary_relaxed': scary_relaxed_par}
+    if attributes["angry_pleased"] >= 5 and random.random() < 0.3:
+        angry_pleased_par *= -1
+
+    if attributes["sick_healthy"] >= 5 and random.random() < 0.3:
+        sick_healthy_par *= -1
+        
+    if attributes["scary_relaxed"] >= 5 and random.random() < 0.3:
+        scary_relaxed_par *= -1
 
 
+    question = question_dictionary[current_mood][random.randint(0, len(question_dictionary[current_mood]) - 1)]
+
+    return f"{character_name}: ", f"{question}", {"angry_pleased": board_excited_par,
+                                                  'board_excited': angry_pleased_par,
+                                                  'sick_healthy': sick_healthy_par,
+                                                  'scary_relaxed': scary_relaxed_par}
 
 
 @app.callback(
@@ -176,9 +189,14 @@ def update_attributes(n, text, weights, attributes, previous_text, used_word_dic
     for word in words:
         used_word_dict[word] = used_word_dict.get(word, 0) + 1
 
-    score = 0.8
+    score = nlp.get_sentiment_score(text) * 2
+
     for attribute, value in attributes.items():
         attributes[attribute] += weights[attribute] * score
+        if attributes[attribute] > 10:
+            attributes[attribute] = 10
+        elif attributes[attribute] < 0:
+            attributes[attribute] = 0
 
     return attributes, None, text, used_word_dict
 
@@ -203,7 +221,8 @@ def update_gauges(attributes):
     State("images_dict", "data")
 )
 def update_image(attributes, character_name, image_dict):
-    fig, new_images_dict = image_generation.get_image_figure_by_attributes(character_name.lower(), attributes, image_dict)
+    fig, new_images_dict = image_generation.get_image_figure_by_attributes(character_name.lower(), attributes,
+                                                                           image_dict)
     return fig, new_images_dict
 
 
