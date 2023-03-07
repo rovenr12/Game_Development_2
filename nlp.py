@@ -1,8 +1,11 @@
 import re
 import spacy
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 spacy_nlp = spacy.load("en_core_web_sm")
 
+# Create a SentimentIntensityAnalyzer object.
+    sid_obj = SentimentIntensityAnalyzer()
 
 def clean_text(text):
     # remove unicode characters
@@ -21,3 +24,11 @@ def clean_text(text):
     print(words)
 
     return words
+
+
+#calculate the intensity of sentiments in the given sentence
+def get_sentiment_score(sentence):
+    sentiment_dict = sid_obj.polarity_scores(sentence)
+    intensity = sentiment_dict['compound']
+  
+    return intensity
