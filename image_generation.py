@@ -35,13 +35,19 @@ def generate_image_fig(image):
     return fig
 
 
+def get_code_idx(number):
+    if number == 5:
+        return 1
+    return 0 if number < 5 else 2
+
+
 def get_image_figure_by_attributes(character_name, character_attributes, images_dict):
     if not images_dict:
-        images_dict = {"body": "5_5_5_5", "eye": "5_5_5_5", "mouth": "5_5_5_5", "accessory": "5_5_5_5"}
+        images_dict = {"body": "1_1_1_1", "eye": "1_1_1_1", "mouth": "1_1_1_1", "accessory": "1_1_1_1"}
 
     new_images_dict = {"body": "", "eye": "", "mouth": "", "accessory": ""}
 
-    attribute_code = [str(int(val)) for val in character_attributes.values()]
+    attribute_code = [str(get_code_idx(int(val))) for val in character_attributes.values()]
     attribute_code = "_".join(attribute_code)
 
     if path.exists(f"assets/body/{character_name}/{attribute_code}.png"):

@@ -83,7 +83,7 @@ collections_card = html.Div(dbc.Card([
                             dbc.Tab(label='Accessory', tab_id='accessory')], id='collection_tabs', active_tab='all'),
                   html.Div(id='collection_div')],
                  style={'height': '800px', 'overflow-y': 'auto'}),
-    dcc.Store(data={"body": ["5_5_5_5"], "eye": ["5_5_5_5"], "mouth": ["5_5_5_5"], "accessory": ["5_5_5_5"]},
+    dcc.Store(data={"body": ["1_1_1_1"], "eye": ["1_1_1_1"], "mouth": ["1_1_1_1"], "accessory": ["1_1_1_1"]},
               id='collections')
 ]), className='my-2 shadow')
 
