@@ -46,7 +46,15 @@ attributes_card = html.Div(dbc.Card([
 question_character = html.Span("Character: ", className='m-0 fw-bold text-primary fs-3', id='question_character')
 question_span = html.Span("question", className='m-0 text-primary fs-3', id='question')
 
-question_div = html.Div([question_character, question_span], className='text-center')
+angry_parameter_hint = dbc.Col([dbc.Row(dbc.Col("Angry vs Pleased")), dbc.Row(dbc.Col("💖💔🖤🖤🖤", id='angry_hint'))])
+board_parameter_hint = dbc.Col([dbc.Row(dbc.Col("Board vs Excited")), dbc.Row(dbc.Col("💖💔🖤🖤🖤", id='board_hint'))])
+sick_parameter_hint = dbc.Col([dbc.Row(dbc.Col("Sick vs Healthy")), dbc.Row(dbc.Col("💖💔🖤🖤🖤", id='sick_hint'))])
+scary_parameter_hint = dbc.Col([dbc.Row(dbc.Col("Scary vs Relaxed")), dbc.Row(dbc.Col("💖💔🖤🖤🖤", id='scary_hint'))])
+
+question_parameters_hint = dbc.Row([angry_parameter_hint, board_parameter_hint,
+                                    sick_parameter_hint, scary_parameter_hint], class_name='mt-3')
+
+question_div = html.Div([question_character, question_span, question_parameters_hint], className='text-center')
 
 prompt = html.Div(
     [dbc.Textarea(className="mb-3", placeholder="Your answer", rows=5, size='lg', style={"resize": "none"},
@@ -128,10 +136,9 @@ def get_new_question(attributes, character_name):
 
     if attributes["sick_healthy"] >= 5 and random.random() < 0.3:
         sick_healthy_par *= -1
-        
+
     if attributes["scary_relaxed"] >= 5 and random.random() < 0.3:
         scary_relaxed_par *= -1
-
 
     question = question_dictionary[current_mood][random.randint(0, len(question_dictionary[current_mood]) - 1)]
 
@@ -139,6 +146,21 @@ def get_new_question(attributes, character_name):
                                                   'board_excited': angry_pleased_par,
                                                   'sick_healthy': sick_healthy_par,
                                                   'scary_relaxed': scary_relaxed_par}
+
+
+@app.callback(
+    Output("angry_hint", "children"),
+    Output("board_hint", "children"),
+    Output("sick_hint", "children"),
+    Output("scary_hint", "children"),
+    Input("question_parameters", "data")
+)
+def update_question_parameters_hint(question_parameters):
+    if not question_parameters:
+        return "🖤🖤🖤🖤🖤", "🖤🖤🖤🖤🖤", "🖤🖤🖤🖤🖤", "🖤🖤🖤🖤🖤"
+
+    return tuple([game_logic.get_hint(parameter) for parameter in question_parameters.values()])
+
 
 
 @app.callback(
