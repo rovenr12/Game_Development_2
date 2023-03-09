@@ -73,6 +73,7 @@ def get_image_figure_by_attributes(character_name, character_attributes, images_
 
 
 def get_image_figure_by_image_dict(character_name, images_dict):
+    character_name = character_name.lower()
     image = generate_images(character_name, images_dict)
     fig = generate_image_fig(image)
 

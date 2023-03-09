@@ -28,7 +28,7 @@ character_card = html.Div(dbc.Card([
 # Attribute Panel
 ####################################
 angry_gauge = daq.Gauge(id='angry_pleased', label="Angry vs Pleased", value=5)
-board_gauge = daq.Gauge(id='board_excited', label="Board vs Excited", value=5)
+board_gauge = daq.Gauge(id='board_excited', label="Bored vs Excited", value=5)
 sick_gauge = daq.Gauge(id='sick_healthy', label="Sick vs Healthy", value=5)
 scary_gauge = daq.Gauge(id='scary_relaxed', label="Scary vs Relaxed", value=5)
 
@@ -46,13 +46,18 @@ attributes_card = html.Div(dbc.Card([
 question_character = html.Span("Character: ", className='m-0 fw-bold text-primary fs-3', id='question_character')
 question_span = html.Span("question", className='m-0 text-primary fs-3', id='question')
 
-angry_parameter_hint = dbc.Col([dbc.Row(dbc.Col("Angry vs Pleased")), dbc.Row(dbc.Col("💖💔🖤🖤🖤", id='angry_hint'))])
-board_parameter_hint = dbc.Col([dbc.Row(dbc.Col("Board vs Excited")), dbc.Row(dbc.Col("💖💔🖤🖤🖤", id='board_hint'))])
-sick_parameter_hint = dbc.Col([dbc.Row(dbc.Col("Sick vs Healthy")), dbc.Row(dbc.Col("💖💔🖤🖤🖤", id='sick_hint'))])
-scary_parameter_hint = dbc.Col([dbc.Row(dbc.Col("Scary vs Relaxed")), dbc.Row(dbc.Col("💖💔🖤🖤🖤", id='scary_hint'))])
+angry_parameter_hint = dbc.Col([dbc.Row(dbc.Col("Angry vs Pleased")), dbc.Row(dbc.Col("💖💔🖤🖤🖤", id='angry_hint'))],
+                               lg=3, md=6, sm=6, class_name='py-2')
+board_parameter_hint = dbc.Col([dbc.Row(dbc.Col("Bored vs Excited")), dbc.Row(dbc.Col("💖💔🖤🖤🖤", id='board_hint'))],
+                               lg=3, md=6, sm=6, class_name='py-2')
+sick_parameter_hint = dbc.Col([dbc.Row(dbc.Col("Sick vs Healthy")), dbc.Row(dbc.Col("💖💔🖤🖤🖤", id='sick_hint'))],
+                              lg=3, md=6, sm=6, class_name='py-2')
+scary_parameter_hint = dbc.Col([dbc.Row(dbc.Col("Scary vs Relaxed")), dbc.Row(dbc.Col("💖💔🖤🖤🖤", id='scary_hint'))],
+                               lg=3, md=6, sm=6, class_name='py-2')
 
 question_parameters_hint = dbc.Row([angry_parameter_hint, board_parameter_hint,
-                                    sick_parameter_hint, scary_parameter_hint], class_name='mt-3')
+                                    sick_parameter_hint, scary_parameter_hint],
+                                   class_name='mt-3 row-cols-auto justify-content-center')
 
 question_div = html.Div([question_character, question_span, question_parameters_hint], className='text-center')
 
@@ -64,10 +69,11 @@ prompt = html.Div(
      dcc.Store(data={}, id='used_word_dict')])
 
 question_answer_card = html.Div(dbc.Card([
-    dbc.CardBody(dbc.Container([dbc.Row(question_div, class_name='h-50 align-items-center'),
-                                dbc.Row(html.Hr()),
-                                dbc.Row(prompt, class_name='h-50')], class_name='h-100'),
-                 style={'height': '550px'}, ),
+    dbc.CardBody(
+        dbc.Container([dbc.Row(question_div, class_name='h-50 align-items-center', style={"overflow-y": "auto"}),
+                       dbc.Row(html.Hr()),
+                       dbc.Row(prompt, class_name='h-50')], class_name='h-100'),
+        style={'height': '550px'}, ),
     dcc.Store(id='question_parameters')
 ]), className='my-2 shadow')
 
@@ -162,7 +168,6 @@ def update_question_parameters_hint(question_parameters):
     return tuple([game_logic.get_hint(parameter) for parameter in question_parameters.values()])
 
 
-
 @app.callback(
     Output("prompt_button", "disabled"),
     Output("prompt", "valid"),
@@ -253,7 +258,7 @@ def update_image(attributes, character_name, image_dict):
     Input("images_dict", "data"),
     State("collections", "data")
 )
-def update_collections(images_dict, collections):
+def update_collections_data(images_dict, collections):
     for collection, data in collections.items():
         if images_dict[collection] not in data:
             collections[collection].append(images_dict[collection])
@@ -273,16 +278,16 @@ def update_collections(at, collections, character_name):
         images_list = collections['body']
         for image in images_list:
             images.append(dbc.Col(html.Img(src=f'assets/body/{character_name.lower()}/{image}.png',
-                                           style={'width': '128px', 'height': '128px'}), className="m-2"))
+                                           style={'width': '128px', 'height': '128px'}), className="m-2", lg=2, md=3, sm=4))
 
     for attribute in ['eye', 'mouth', 'accessory']:
         if at == 'all' or at == attribute:
             images_list = collections[attribute]
             for image in images_list:
                 images.append(dbc.Col(html.Img(src=f'assets/{attribute}/{image}.png',
-                                               style={'width': '128px', 'height': '128px'}), className="m-2"))
+                                               style={'width': '128px', 'height': '128px'}), className="m-2", lg=2, md=3, sm=4))
 
-    return dbc.Row(images, class_name='row-cols-auto g-1')
+    return dbc.Row(images, class_name='row-cols-auto g-1 justify-content-between')
 
 
 @app.callback(
