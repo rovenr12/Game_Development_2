@@ -123,10 +123,10 @@ def get_new_question(attributes, character_name):
     current_mood += "1" if (attributes["sick_healthy"] < 5) else "0"
     current_mood += "1" if (attributes["scary_relaxed"] < 5) else "0"
 
-    board_excited_par = game_logic.norm_pdf(attributes["board_excited"]) + random.uniform(-0.2, 0.2)
-    angry_pleased_par = game_logic.norm_pdf(attributes["angry_pleased"]) + random.uniform(-0.2, 0.2)
-    sick_healthy_par = game_logic.norm_pdf(attributes["sick_healthy"]) + random.uniform(-0.2, 0.2)
-    scary_relaxed_par = game_logic.norm_pdf(attributes["scary_relaxed"]) + random.uniform(-0.2, 0.2)
+    board_excited_par = game_logic.norm_pdf(attributes["board_excited"]) + random.uniform(-0.1, 0.1)
+    angry_pleased_par = game_logic.norm_pdf(attributes["angry_pleased"]) + random.uniform(-0.1, 0.1)
+    sick_healthy_par = game_logic.norm_pdf(attributes["sick_healthy"]) + random.uniform(-0.1, 0.1)
+    scary_relaxed_par = game_logic.norm_pdf(attributes["scary_relaxed"]) + random.uniform(-0.1, 0.1)
 
     if attributes["board_excited"] >= 5 and random.random() < 0.3:
         board_excited_par *= -1

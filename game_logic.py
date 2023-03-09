@@ -34,4 +34,3 @@ def get_hint(weight, tolerance=0.001):
             return "💔💔💔💔🖤"
         else:
             return "💔💔💔💔💔"
-
